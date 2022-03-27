@@ -1,0 +1,404 @@
+2022-03-28 01:08:53 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Сравнение массива (ARRAY) со скалярным значением
+Values of types "BOOLEAN" and "INTEGER" are not comparable; SQL statement:
+select RES.ID_,
+      RES.REV_,
+      RES.DUEDATE_,
+      RES.PROCESS_INSTANCE_ID_,
+      RES.EXCLUSIVE_
+    
+    from ACT_RU_JOB RES
+
+    where (RES.RETRIES_ > 0)
+      and (
+       
+          RES.DUEDATE_ is null or
+       
+          RES.DUEDATE_ <= ?
+      )
+      and (RES.LOCK_OWNER_ is null or RES.LOCK_EXP_TIME_ < ?)
+      and RES.SUSPENSION_STATE_ = 1
+
+       
+
+       
+       
+
+      and ( 
+    ( 
+    RES.EXCLUSIVE_ = 1
+          and not exists(
+            select J2.ID_ from ACT_RU_JOB J2
+            where J2.PROCESS_INSTANCE_ID_ = RES.PROCESS_INSTANCE_ID_                                           -- from the same proc. inst.
+            and (J2.EXCLUSIVE_ = 1)                                                              -- also exclusive
+            and (J2.LOCK_OWNER_ is not null and J2.LOCK_EXP_TIME_ >= ?)  -- in progress
+            )
+   )
+    or
+     
+    RES.EXCLUSIVE_ = 0
+   
+   )
+
+       
+
+     
+    LIMIT ? OFFSET ? [90110-210]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:651)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:496)
+	at org.h2.message.DbException.get(DbException.java:227)
+	at org.h2.value.TypeInfo.checkComparable(TypeInfo.java:724)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:159)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOrN.optimize(ConditionAndOrN.java:168)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:148)
+	at org.h2.command.query.Select.prepare(Select.java:1184)
+	at org.h2.command.Parser.prepareCommand(Parser.java:557)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:615)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:553)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1116)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:92)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:288)
+	at com.zaxxer.hikari.pool.ProxyConnection.prepareStatement(ProxyConnection.java:337)
+	at com.zaxxer.hikari.pool.HikariProxyConnection.prepareStatement(HikariProxyConnection.java)
+	at jdk.internal.reflect.GeneratedMethodAccessor34.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy$TransactionAwareInvocationHandler.invoke(TransactionAwareDataSourceProxy.java:238)
+	at com.sun.proxy.$Proxy77.prepareStatement(Unknown Source)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.instantiateStatement(PreparedStatementHandler.java:86)
+	at org.apache.ibatis.executor.statement.BaseStatementHandler.prepare(BaseStatementHandler.java:88)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.prepare(RoutingStatementHandler.java:59)
+	at org.apache.ibatis.executor.BatchExecutor.doQuery(BatchExecutor.java:90)
+	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:325)
+	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:156)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:109)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:89)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:140)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.lambda$executeSelectList$1(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.util.ExceptionUtil.doWithExceptionWrapper(ExceptionUtil.java:254)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.executeSelectList(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.selectList(DbSqlSession.java:103)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectListWithRawParameter(DbEntityManager.java:182)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:174)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:170)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:159)
+	at org.camunda.bpm.engine.impl.persistence.entity.JobManager.findNextJobsToExecute(JobManager.java:238)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:66)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:44)
+	at org.camunda.bpm.engine.impl.interceptor.CommandExecutorImpl.execute(CommandExecutorImpl.java:28)
+	at org.camunda.bpm.engine.impl.interceptor.CommandContextInterceptor.execute(CommandContextInterceptor.java:110)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor$1.doInTransaction(SpringTransactionInterceptor.java:72)
+	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor.execute(SpringTransactionInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.ProcessApplicationContextInterceptor.execute(ProcessApplicationContextInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.CommandCounterInterceptor.execute(CommandCounterInterceptor.java:35)
+	at org.camunda.bpm.engine.impl.interceptor.LogInterceptor.execute(LogInterceptor.java:33)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.acquireJobs(SequentialJobAcquisitionRunnable.java:164)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.run(SequentialJobAcquisitionRunnable.java:80)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+2022-03-28 01:08:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Сравнение массива (ARRAY) со скалярным значением
+Values of types "BOOLEAN" and "INTEGER" are not comparable; SQL statement:
+select RES.ID_,
+      RES.REV_,
+      RES.DUEDATE_,
+      RES.PROCESS_INSTANCE_ID_,
+      RES.EXCLUSIVE_
+    
+    from ACT_RU_JOB RES
+
+    where (RES.RETRIES_ > 0)
+      and (
+       
+          RES.DUEDATE_ is null or
+       
+          RES.DUEDATE_ <= ?
+      )
+      and (RES.LOCK_OWNER_ is null or RES.LOCK_EXP_TIME_ < ?)
+      and RES.SUSPENSION_STATE_ = 1
+
+       
+
+       
+       
+
+      and ( 
+    ( 
+    RES.EXCLUSIVE_ = 1
+          and not exists(
+            select J2.ID_ from ACT_RU_JOB J2
+            where J2.PROCESS_INSTANCE_ID_ = RES.PROCESS_INSTANCE_ID_                                           -- from the same proc. inst.
+            and (J2.EXCLUSIVE_ = 1)                                                              -- also exclusive
+            and (J2.LOCK_OWNER_ is not null and J2.LOCK_EXP_TIME_ >= ?)  -- in progress
+            )
+   )
+    or
+     
+    RES.EXCLUSIVE_ = 0
+   
+   )
+
+       
+
+     
+    LIMIT ? OFFSET ? [90110-210]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:651)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:496)
+	at org.h2.message.DbException.get(DbException.java:227)
+	at org.h2.value.TypeInfo.checkComparable(TypeInfo.java:724)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:159)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOrN.optimize(ConditionAndOrN.java:168)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:148)
+	at org.h2.command.query.Select.prepare(Select.java:1184)
+	at org.h2.command.Parser.prepareCommand(Parser.java:557)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:615)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:553)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1116)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:92)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:288)
+	at com.zaxxer.hikari.pool.ProxyConnection.prepareStatement(ProxyConnection.java:337)
+	at com.zaxxer.hikari.pool.HikariProxyConnection.prepareStatement(HikariProxyConnection.java)
+	at jdk.internal.reflect.GeneratedMethodAccessor34.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy$TransactionAwareInvocationHandler.invoke(TransactionAwareDataSourceProxy.java:238)
+	at com.sun.proxy.$Proxy77.prepareStatement(Unknown Source)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.instantiateStatement(PreparedStatementHandler.java:86)
+	at org.apache.ibatis.executor.statement.BaseStatementHandler.prepare(BaseStatementHandler.java:88)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.prepare(RoutingStatementHandler.java:59)
+	at org.apache.ibatis.executor.BatchExecutor.doQuery(BatchExecutor.java:90)
+	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:325)
+	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:156)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:109)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:89)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:140)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.lambda$executeSelectList$1(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.util.ExceptionUtil.doWithExceptionWrapper(ExceptionUtil.java:254)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.executeSelectList(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.selectList(DbSqlSession.java:103)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectListWithRawParameter(DbEntityManager.java:182)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:174)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:170)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:159)
+	at org.camunda.bpm.engine.impl.persistence.entity.JobManager.findNextJobsToExecute(JobManager.java:238)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:66)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:44)
+	at org.camunda.bpm.engine.impl.interceptor.CommandExecutorImpl.execute(CommandExecutorImpl.java:28)
+	at org.camunda.bpm.engine.impl.interceptor.CommandContextInterceptor.execute(CommandContextInterceptor.java:110)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor$1.doInTransaction(SpringTransactionInterceptor.java:72)
+	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor.execute(SpringTransactionInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.ProcessApplicationContextInterceptor.execute(ProcessApplicationContextInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.CommandCounterInterceptor.execute(CommandCounterInterceptor.java:35)
+	at org.camunda.bpm.engine.impl.interceptor.LogInterceptor.execute(LogInterceptor.java:33)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.acquireJobs(SequentialJobAcquisitionRunnable.java:164)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.run(SequentialJobAcquisitionRunnable.java:80)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+2022-03-28 01:09:08 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Сравнение массива (ARRAY) со скалярным значением
+Values of types "BOOLEAN" and "INTEGER" are not comparable; SQL statement:
+select RES.ID_,
+      RES.REV_,
+      RES.DUEDATE_,
+      RES.PROCESS_INSTANCE_ID_,
+      RES.EXCLUSIVE_
+    
+    from ACT_RU_JOB RES
+
+    where (RES.RETRIES_ > 0)
+      and (
+       
+          RES.DUEDATE_ is null or
+       
+          RES.DUEDATE_ <= ?
+      )
+      and (RES.LOCK_OWNER_ is null or RES.LOCK_EXP_TIME_ < ?)
+      and RES.SUSPENSION_STATE_ = 1
+
+       
+
+       
+       
+
+      and ( 
+    ( 
+    RES.EXCLUSIVE_ = 1
+          and not exists(
+            select J2.ID_ from ACT_RU_JOB J2
+            where J2.PROCESS_INSTANCE_ID_ = RES.PROCESS_INSTANCE_ID_                                           -- from the same proc. inst.
+            and (J2.EXCLUSIVE_ = 1)                                                              -- also exclusive
+            and (J2.LOCK_OWNER_ is not null and J2.LOCK_EXP_TIME_ >= ?)  -- in progress
+            )
+   )
+    or
+     
+    RES.EXCLUSIVE_ = 0
+   
+   )
+
+       
+
+     
+    LIMIT ? OFFSET ? [90110-210]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:651)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:496)
+	at org.h2.message.DbException.get(DbException.java:227)
+	at org.h2.value.TypeInfo.checkComparable(TypeInfo.java:724)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:159)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOrN.optimize(ConditionAndOrN.java:168)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:148)
+	at org.h2.command.query.Select.prepare(Select.java:1184)
+	at org.h2.command.Parser.prepareCommand(Parser.java:557)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:615)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:553)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1116)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:92)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:288)
+	at com.zaxxer.hikari.pool.ProxyConnection.prepareStatement(ProxyConnection.java:337)
+	at com.zaxxer.hikari.pool.HikariProxyConnection.prepareStatement(HikariProxyConnection.java)
+	at jdk.internal.reflect.GeneratedMethodAccessor34.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy$TransactionAwareInvocationHandler.invoke(TransactionAwareDataSourceProxy.java:238)
+	at com.sun.proxy.$Proxy77.prepareStatement(Unknown Source)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.instantiateStatement(PreparedStatementHandler.java:86)
+	at org.apache.ibatis.executor.statement.BaseStatementHandler.prepare(BaseStatementHandler.java:88)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.prepare(RoutingStatementHandler.java:59)
+	at org.apache.ibatis.executor.BatchExecutor.doQuery(BatchExecutor.java:90)
+	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:325)
+	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:156)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:109)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:89)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:140)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.lambda$executeSelectList$1(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.util.ExceptionUtil.doWithExceptionWrapper(ExceptionUtil.java:254)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.executeSelectList(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.selectList(DbSqlSession.java:103)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectListWithRawParameter(DbEntityManager.java:182)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:174)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:170)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:159)
+	at org.camunda.bpm.engine.impl.persistence.entity.JobManager.findNextJobsToExecute(JobManager.java:238)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:66)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:44)
+	at org.camunda.bpm.engine.impl.interceptor.CommandExecutorImpl.execute(CommandExecutorImpl.java:28)
+	at org.camunda.bpm.engine.impl.interceptor.CommandContextInterceptor.execute(CommandContextInterceptor.java:110)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor$1.doInTransaction(SpringTransactionInterceptor.java:72)
+	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor.execute(SpringTransactionInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.ProcessApplicationContextInterceptor.execute(ProcessApplicationContextInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.CommandCounterInterceptor.execute(CommandCounterInterceptor.java:35)
+	at org.camunda.bpm.engine.impl.interceptor.LogInterceptor.execute(LogInterceptor.java:33)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.acquireJobs(SequentialJobAcquisitionRunnable.java:164)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.run(SequentialJobAcquisitionRunnable.java:80)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+2022-03-28 01:09:28 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Сравнение массива (ARRAY) со скалярным значением
+Values of types "BOOLEAN" and "INTEGER" are not comparable; SQL statement:
+select RES.ID_,
+      RES.REV_,
+      RES.DUEDATE_,
+      RES.PROCESS_INSTANCE_ID_,
+      RES.EXCLUSIVE_
+    
+    from ACT_RU_JOB RES
+
+    where (RES.RETRIES_ > 0)
+      and (
+       
+          RES.DUEDATE_ is null or
+       
+          RES.DUEDATE_ <= ?
+      )
+      and (RES.LOCK_OWNER_ is null or RES.LOCK_EXP_TIME_ < ?)
+      and RES.SUSPENSION_STATE_ = 1
+
+       
+
+       
+       
+
+      and ( 
+    ( 
+    RES.EXCLUSIVE_ = 1
+          and not exists(
+            select J2.ID_ from ACT_RU_JOB J2
+            where J2.PROCESS_INSTANCE_ID_ = RES.PROCESS_INSTANCE_ID_                                           -- from the same proc. inst.
+            and (J2.EXCLUSIVE_ = 1)                                                              -- also exclusive
+            and (J2.LOCK_OWNER_ is not null and J2.LOCK_EXP_TIME_ >= ?)  -- in progress
+            )
+   )
+    or
+     
+    RES.EXCLUSIVE_ = 0
+   
+   )
+
+       
+
+     
+    LIMIT ? OFFSET ? [90110-210]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:651)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:496)
+	at org.h2.message.DbException.get(DbException.java:227)
+	at org.h2.value.TypeInfo.checkComparable(TypeInfo.java:724)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:159)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOr.optimize(ConditionAndOr.java:136)
+	at org.h2.expression.condition.ConditionAndOrN.optimize(ConditionAndOrN.java:168)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:148)
+	at org.h2.command.query.Select.prepare(Select.java:1184)
+	at org.h2.command.Parser.prepareCommand(Parser.java:557)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:615)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:553)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1116)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:92)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:288)
+	at com.zaxxer.hikari.pool.ProxyConnection.prepareStatement(ProxyConnection.java:337)
+	at com.zaxxer.hikari.pool.HikariProxyConnection.prepareStatement(HikariProxyConnection.java)
+	at jdk.internal.reflect.GeneratedMethodAccessor34.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy$TransactionAwareInvocationHandler.invoke(TransactionAwareDataSourceProxy.java:238)
+	at com.sun.proxy.$Proxy77.prepareStatement(Unknown Source)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.instantiateStatement(PreparedStatementHandler.java:86)
+	at org.apache.ibatis.executor.statement.BaseStatementHandler.prepare(BaseStatementHandler.java:88)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.prepare(RoutingStatementHandler.java:59)
+	at org.apache.ibatis.executor.BatchExecutor.doQuery(BatchExecutor.java:90)
+	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:325)
+	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:156)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:109)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:89)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:140)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.lambda$executeSelectList$1(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.util.ExceptionUtil.doWithExceptionWrapper(ExceptionUtil.java:254)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.executeSelectList(DbSqlSession.java:111)
+	at org.camunda.bpm.engine.impl.db.sql.DbSqlSession.selectList(DbSqlSession.java:103)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectListWithRawParameter(DbEntityManager.java:182)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:174)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:170)
+	at org.camunda.bpm.engine.impl.db.entitymanager.DbEntityManager.selectList(DbEntityManager.java:159)
+	at org.camunda.bpm.engine.impl.persistence.entity.JobManager.findNextJobsToExecute(JobManager.java:238)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:66)
+	at org.camunda.bpm.engine.impl.cmd.AcquireJobsCmd.execute(AcquireJobsCmd.java:44)
+	at org.camunda.bpm.engine.impl.interceptor.CommandExecutorImpl.execute(CommandExecutorImpl.java:28)
+	at org.camunda.bpm.engine.impl.interceptor.CommandContextInterceptor.execute(CommandContextInterceptor.java:110)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor$1.doInTransaction(SpringTransactionInterceptor.java:72)
+	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140)
+	at org.camunda.bpm.engine.spring.SpringTransactionInterceptor.execute(SpringTransactionInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.ProcessApplicationContextInterceptor.execute(ProcessApplicationContextInterceptor.java:70)
+	at org.camunda.bpm.engine.impl.interceptor.CommandCounterInterceptor.execute(CommandCounterInterceptor.java:35)
+	at org.camunda.bpm.engine.impl.interceptor.LogInterceptor.execute(LogInterceptor.java:33)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.acquireJobs(SequentialJobAcquisitionRunnable.java:164)
+	at org.camunda.bpm.engine.impl.jobexecutor.SequentialJobAcquisitionRunnable.run(SequentialJobAcquisitionRunnable.java:80)
+	at java.base/java.lang.Thread.run(Thread.java:829)
